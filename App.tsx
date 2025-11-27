@@ -18,6 +18,37 @@ const COMMON_RESTRICTIONS = ["不吃辣", "不吃香菜", "不吃葱姜蒜", "�
 const CACHE_KEY = 'chefgenius_recipe_cache';
 const MAX_CACHE_SIZE = 5;
 
+// Initial Static Data
+const INITIAL_FRIDGE: Ingredient[] = [
+  { name: '鸡蛋', amount: '6个', category: '肉类' },
+  { name: '西红柿', amount: '3个', category: '蔬菜' },
+  { name: '青椒', amount: '2个', category: '蔬菜' },
+  { name: '葱', amount: '1根', category: '佐料' }
+];
+
+const INITIAL_FAVORITES: Recipe[] = [
+  STATIC_RECIPES["宫保鸡丁"]
+];
+
+const INITIAL_LOGS: CookedLog[] = [
+  {
+    id: "init_log_1",
+    recipeTitle: STATIC_RECIPES["西红柿炒鸡蛋"].title,
+    date: new Date().toISOString(),
+    nutrition: STATIC_RECIPES["西红柿炒鸡蛋"].nutrition,
+    consumedServings: 1.5,
+    imageUrl: STATIC_RECIPES["西红柿炒鸡蛋"].imageUrl
+  },
+  {
+    id: "init_log_2",
+    recipeTitle: "米饭",
+    date: new Date(Date.now() - 3600000).toISOString(),
+    nutrition: { calories: "350 kcal", protein: "7g", carbs: "80g", fat: "1g" },
+    consumedServings: 2,
+    // Staple food might not have image, handled in DashboardView
+  }
+];
+
 // --- Helper for Nutrition Scaling ---
 const parseValue = (str: string | undefined): { val: number, unit: string } => {
   if (!str) return { val: 0, unit: '' };
@@ -74,11 +105,13 @@ function App() {
   const [restrictions, setRestrictions] = useState('');
   const [showPreferences, setShowPreferences] = useState(false);
 
-  // Load data from local storage on mount
+  // Load data from local storage on mount, apply initial data if empty
   useEffect(() => {
     const savedFavs = localStorage.getItem('chefgenius_favorites');
     if (savedFavs) {
       try { setFavorites(JSON.parse(savedFavs)); } catch (e) { console.error(e); }
+    } else {
+      setFavorites(INITIAL_FAVORITES); // Initial Data
     }
 
     const savedHistory = localStorage.getItem('chefgenius_history_v2');
@@ -94,11 +127,15 @@ function App() {
     const savedFridge = localStorage.getItem('chefgenius_fridge');
     if (savedFridge) {
        try { setFridge(JSON.parse(savedFridge)); } catch (e) { console.error(e); }
+    } else {
+       setFridge(INITIAL_FRIDGE); // Initial Data
     }
 
     const savedCooked = localStorage.getItem('chefgenius_cooked_log');
     if (savedCooked) {
       try { setCookedHistory(JSON.parse(savedCooked)); } catch (e) { console.error(e); }
+    } else {
+      setCookedHistory(INITIAL_LOGS); // Initial Data
     }
   }, []);
 
@@ -143,8 +180,6 @@ function App() {
     const trimmed = query.trim();
     if (!trimmed) return;
     const newItem: HistoryItem = { query: trimmed, mode };
-    // Remove duplicate queries regardless of mode to keep list clean, or allow same query different mode? 
-    // Let's filter by query to avoid duplicates.
     const newHistory = [newItem, ...history.filter(h => h.query !== trimmed)].slice(0, 5);
     setHistory(newHistory);
     localStorage.setItem('chefgenius_history_v2', JSON.stringify(newHistory));
@@ -183,7 +218,6 @@ function App() {
     // Dish Mode
     // Check Static Recipes First (No LLM)
     if (STATIC_RECIPES[trimmedQuery]) {
-      // Use the static recipe directly
       setCurrentRecipe(STATIC_RECIPES[trimmedQuery]);
       setAppState(AppState.RECIPE_VIEW);
       return;
@@ -215,10 +249,7 @@ function App() {
   };
 
   const handleSuggestionSelect = async (suggestion: RecipeSuggestion) => {
-     // NOTE: We do NOT update history here to the suggestion title, 
-     // keeping the original ingredient search in history as requested.
      setSearchMode('dish');
-     // setSearchQuery(suggestion.title); // Optional: update UI, but keeps history clean
      
      // Check Static for Suggestions too
      if (STATIC_RECIPES[suggestion.title]) {
@@ -289,13 +320,9 @@ function App() {
   };
   
   const addToFridge = (name: string, amount: string) => {
-    // If name already exists, we conceptually "update" or "replace" it based on FridgeView logic.
-    // FridgeView handles removal of old item before adding new one if it's an update.
-    // But to be safe against duplicates if called elsewhere:
     if (!fridge.find(i => i.name === name)) {
       setFridge([...fridge, { name, amount }]);
     } else {
-       // Update existing
        setFridge(fridge.map(i => i.name === name ? { name, amount } : i));
     }
   };
@@ -327,7 +354,8 @@ function App() {
       recipeTitle: recipe.title,
       date: new Date().toISOString(),
       nutrition: scaledNutrition,
-      consumedServings: consumedServings
+      consumedServings: consumedServings,
+      imageUrl: recipe.imageUrl // Pass image URL
     };
     
     setCookedHistory(prev => [log, ...prev]);

@@ -79,6 +79,7 @@ export interface CookedLog {
   date: string; // ISO string
   nutrition: NutritionInfo;
   consumedServings: number; // The actual amount eaten
+  imageUrl?: string; // Image of the dish
 }
 
 export type UnitType = '个' | 'g' | 'kg' | 'ml' | 'L' | '根' | '包' | '勺' | '适量';

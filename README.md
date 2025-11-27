@@ -1,20 +1,45 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
 
-# Run and deploy your AI Studio app
+# ChefGenius - AI Kitchen Assistant
 
-This contains everything you need to run your app locally.
+ChefGenius 是一个基于 Google Gemini API 的智能烹饪助手 Web 应用。它不仅能根据菜名生成详细的图文食谱，还能根据冰箱食材提供灵感，管理购物清单，并追踪您的烹饪历史和营养摄入。
 
-View your app in AI Studio: https://ai.studio/apps/drive/1FFsuOGmqtx951Vj1CKVi3LugHCg0_vvM
+## 🌟 主要功能
 
-## Run Locally
+### 1. 智能食谱生成 (Recipe Generation)
+- **按菜名搜索**: 输入任何想吃的菜（如“红烧肉”），AI 会生成详细的制作步骤、所需食材、营养成分和精美配图。
+- **静态热门推荐**: 内置热门菜品（如宫保鸡丁、清蒸鲈鱼），无需等待 AI 生成，秒开查看。
+- **个性化定制**: 支持设置用餐人数（自动换算食材分量）和忌口（如不吃辣、素食）。
 
-**Prerequisites:**  Node.js
+### 2. 冰箱灵感 (Fridge & Inspiration)
+- **食材管理**: 在“我的冰箱”中记录家里的食材。
+- **灵感推荐**: 勾选冰箱里的食材，AI 会为您推荐几道可以做的菜。
+- **冲突检测**: 当您搜索的菜包含忌口食材时，AI 会提示并提供“原版”和“安全改良版”供选择。
 
+### 3. 购物清单 (Shopping List)
+- **智能汇总**: 将多道菜的食材自动合并（如两道菜都需要葱，会自动相加）。
+- **库存联动**: 自动检测清单中的食材是否在冰箱里，并在清单中标记“库存”。
+- **状态管理**: 区分“需购买”、“已购买”和“冰箱已有”。
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### 4. 烹饪模式 (Cooking Mode)
+- **分步指导**: 沉浸式的烹饪步骤视图。
+- **智能计时器**: 识别步骤中的时间（如“炖煮45分钟”），提供一键倒计时功能。
+- **微量元素**: 查看详细的营养成分，包括钙、铁、维生素C等。
+
+### 5. 烹饪看板 (Dashboard)
+- **历史记录**: 记录您做过的每一道菜，包括实际摄入的份量。
+- **主食记录**: 支持手动添加米饭、面条等主食。
+- **营养分析**: 统计今日摄入的热量、蛋白质、碳水和脂肪。
+- **微量元素建议**: 根据今日摄入量，智能给出健康建议（如“钠摄入过高，注意清淡”）。
+
+### 6. 我的收藏 (Favorites)
+- 将喜欢的食谱收藏起来，随时查看，防止丢失。
+
+## 🛠 技术栈
+- **Frontend**: React 19, Tailwind CSS
+- **AI Model**: Google Gemini 2.5 Flash (Text & Logic), Gemini 2.5 Flash Image (Visuals)
+- **Persistence**: LocalStorage
+
+## 🚀 使用说明
+1. 首次进入，应用会预置一些初始数据（冰箱食材、收藏菜谱、历史记录）方便体验。
+2. 点击首页右上角的图标可进入 **烹饪看板**、**我的收藏** 和 **我的冰箱**。
+3. 点击“配置口味 & 分量”可设置忌口。

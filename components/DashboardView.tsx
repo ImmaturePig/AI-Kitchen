@@ -82,7 +82,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ logs, onBack, onAd
     if (totals.protein < 50) advices.push("🥩 蛋白质摄入不足，建议补充鸡蛋、牛奶或瘦肉。");
     if (totals.sodium > 2300) advices.push("🧂 钠摄入量较高，注意清淡饮食，多喝水。");
 
-    return { count: todayLogs.length, ...totals, advices };
+    // Micronutrient specific advice
+    const microAdvices: string[] = [];
+    if (totals.sodium > 2000) microAdvices.push("少盐：钠摄入略高，注意控制咸味佐料。");
+    if (totals.sugar > 40) microAdvices.push("控糖：糖分摄入较多，少吃甜食。");
+    if (totals.fiber < 25 && totals.calories > 1000) microAdvices.push("增纤：膳食纤维不足，多吃蔬菜水果。");
+    if (totals.calcium < 600 && totals.calories > 1000) microAdvices.push("补钙：钙摄入偏低，来杯牛奶吧。");
+    if (totals.iron < 10 && totals.calories > 1000) microAdvices.push("补铁：铁摄入不足，适量吃些红肉或菠菜。");
+    if (totals.vitaminC < 60 && totals.calories > 1000) microAdvices.push("维C：补充维生素C，吃个橙子吧。");
+
+    return { count: todayLogs.length, ...totals, advices, microAdvices };
   }, [sortedLogs]);
 
   const handleAddStaple = () => {
@@ -102,7 +111,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ logs, onBack, onAd
       recipeTitle: selectedStaple.name,
       date: new Date().toISOString(),
       nutrition: nutrition,
-      consumedServings: stapleAmount
+      consumedServings: stapleAmount,
+      // Staple foods usually don't have images in this simple implementation, or we could add static ones
     };
 
     onAddLog(newLog);
@@ -215,9 +225,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ logs, onBack, onAd
                  return (
                   <div key={log.id} className="flex items-center justify-between border-b border-stone-50 last:border-0 pb-4 last:pb-0">
                       <div className="flex items-center space-x-4">
-                         <div className="w-12 h-12 bg-stone-100 rounded-lg flex flex-col items-center justify-center text-stone-600 flex-shrink-0 relative overflow-hidden">
-                            <div className="w-full h-3 bg-red-400 absolute top-0 left-0"></div>
-                            <span className="text-lg font-bold mt-1 leading-none">{date.getDate()}</span>
+                         <div className="w-16 h-16 bg-stone-100 rounded-xl overflow-hidden flex-shrink-0 border border-stone-100">
+                            {log.imageUrl ? (
+                               <img src={log.imageUrl} alt={log.recipeTitle} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex flex-col items-center justify-center text-stone-400">
+                                <div className="text-xs font-bold">{date.getDate()}日</div>
+                              </div>
+                            )}
                          </div>
                          <div>
                             <div className="font-bold text-stone-900 text-lg flex items-center">
@@ -260,15 +275,29 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ logs, onBack, onAd
             {todayAnalysis.count === 0 ? (
                <div className="text-stone-300 text-sm text-center py-6">暂无数据</div>
             ) : (
-               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {microStatsDisplay.map((stat) => (
-                    <div key={stat.key} className={`p-3 rounded-xl border border-transparent ${stat.bg}`}>
-                       <div className="text-[10px] text-stone-500 font-bold uppercase mb-1">{MICRO_LABELS[stat.key]}</div>
-                       <div className={`text-xl font-bold font-serif-display ${stat.color}`}>
-                         {Math.round(stat.val * 10) / 10} <span className="text-xs font-sans text-stone-400">{stat.unit}</span>
-                       </div>
-                    </div>
-                  ))}
+               <div className="space-y-4">
+                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {microStatsDisplay.map((stat) => (
+                      <div key={stat.key} className={`p-3 rounded-xl border border-transparent ${stat.bg}`}>
+                         <div className="text-[10px] text-stone-500 font-bold uppercase mb-1">{MICRO_LABELS[stat.key]}</div>
+                         <div className={`text-xl font-bold font-serif-display ${stat.color}`}>
+                           {Math.round(stat.val * 10) / 10} <span className="text-xs font-sans text-stone-400">{stat.unit}</span>
+                         </div>
+                      </div>
+                    ))}
+                 </div>
+                 
+                 {/* Micro Advice */}
+                 {todayAnalysis.microAdvices.length > 0 && (
+                   <div className="bg-blue-50/50 rounded-xl p-4 border border-blue-100">
+                     <h4 className="text-xs font-bold text-blue-800 uppercase mb-2">微量元素建议</h4>
+                     <ul className="space-y-1">
+                       {todayAnalysis.microAdvices.map((adv, i) => (
+                         <li key={i} className="text-sm text-blue-900/70">• {adv}</li>
+                       ))}
+                     </ul>
+                   </div>
+                 )}
                </div>
             )}
          </div>

@@ -37,28 +37,36 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({ favorites, onSelec
                <div 
                  key={recipe.id}
                  onClick={() => onSelectRecipe(recipe)}
-                 className="bg-white p-5 rounded-2xl shadow-sm border border-stone-100 hover:shadow-lg transition-all cursor-pointer group relative overflow-hidden"
+                 className="bg-white rounded-2xl shadow-sm border border-stone-100 hover:shadow-lg transition-all cursor-pointer group relative overflow-hidden flex"
                >
-                 <div className="flex justify-between items-start">
-                   <div>
-                     <div className="flex items-center space-x-2 mb-1">
-                        <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md uppercase tracking-wide">
-                          {recipe.cuisineType}
-                        </span>
-                        <span className="text-xs text-stone-400">•</span>
-                        <span className="text-xs text-stone-400">{recipe.difficulty === 'Easy' ? '简单' : recipe.difficulty === 'Medium' ? '中等' : '困难'}</span>
+                 {/* Image Section */}
+                 <div className="w-32 h-32 flex-shrink-0 bg-stone-200 relative">
+                    {recipe.imageUrl ? (
+                      <img src={recipe.imageUrl} alt={recipe.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-stone-400 text-2xl">🥘</div>
+                    )}
+                 </div>
+
+                 {/* Content Section */}
+                 <div className="flex-1 p-4 flex flex-col justify-between">
+                   <div className="flex justify-between items-start">
+                     <div className="pr-8">
+                       <h3 className="text-lg font-bold text-stone-900 group-hover:text-amber-700 transition-colors line-clamp-1">
+                         {recipe.title}
+                       </h3>
+                       <div className="flex items-center space-x-2 mt-1 mb-2">
+                          <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md uppercase tracking-wide">
+                            {recipe.cuisineType}
+                          </span>
+                          <span className="text-[10px] text-stone-400">
+                             {recipe.cookTime} · {recipe.difficulty === 'Easy' ? '简单' : recipe.difficulty === 'Medium' ? '中等' : '困难'}
+                          </span>
+                       </div>
                      </div>
-                     <h3 className="text-xl font-bold text-stone-900 mb-2 group-hover:text-amber-700 transition-colors">
-                       {recipe.title}
-                     </h3>
-                     <p className="text-stone-500 text-sm line-clamp-2 leading-relaxed">
-                       {recipe.description}
-                     </p>
-                   </div>
-                   <div className="flex flex-col items-end space-y-4">
-                      <button 
+                     <button 
                         onClick={(e) => onRemove(recipe.id, e)}
-                        className="p-2 text-stone-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all z-10"
+                        className="absolute top-4 right-4 p-2 text-stone-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
                         title="取消收藏"
                       >
                         <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -66,21 +74,10 @@ export const FavoritesView: React.FC<FavoritesViewProps> = ({ favorites, onSelec
                         </svg>
                       </button>
                    </div>
-                 </div>
-                 <div className="mt-4 pt-4 border-t border-stone-50 flex items-center justify-between text-xs text-stone-400 font-medium">
-                   <div className="flex space-x-4">
-                     <span className="flex items-center">
-                       <svg className="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                       {recipe.cookTime}
-                     </span>
-                     <span className="flex items-center">
-                       <svg className="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                       {recipe.servings}
-                     </span>
+                   
+                   <div className="text-xs text-stone-500 line-clamp-2 leading-relaxed">
+                     {recipe.description}
                    </div>
-                   <span className="text-amber-500 font-bold group-hover:translate-x-1 transition-transform">
-                     查看食谱 →
-                   </span>
                  </div>
                </div>
              ))}
